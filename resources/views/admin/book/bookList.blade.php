@@ -66,10 +66,10 @@
                                     <td>{{ $book->category_name }}</td>
                                     <td>{{ date('d-m-Y', strtotime($book->created_date)) }}</td>
                                     <td class="text-end pr-5">
-                                        <a href="#" class="text-success me-3" title="View"><i
-                                                class="fas fa-eye"></i></a>
-                                        <a href="#" class="text-dark me-3" title="Edit"><i
-                                                class="fas fa-edit"></i></a>
+                                        <a href="{{ route('admin#bookView', $book->id) }}" class="text-success me-3"
+                                            title="View"><i class="fas fa-eye"></i></a>
+                                        <a href="{{ route('admin#bookEdit', $book->id) }}" class="text-dark me-3"
+                                            title="Edit"><i class="fas fa-edit"></i></a>
                                         <a href="{{ route('admin#bookDelete', $book->id) }}" class="text-danger"
                                             title="Delete"><i class="fas fa-trash-alt"></i></a>
                                     </td>

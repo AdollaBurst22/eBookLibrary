@@ -46,10 +46,10 @@ body.sidebar-toggled #content-wrapper {
     color: #212529;
 }
 
-.btn-success {
+/* .btn-success {
     padding: 0.6rem 2rem;
     font-weight: 600;
-}
+} */
 
 .btn-success:hover {
     background-color: #218838;

@@ -34,6 +34,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         Route::post('/upload',[BookController::class,'bookUpload'])->name('admin#bookUpload');
         Route::get('/list/{action?}',[BookController::class,'list'])->name('admin#bookList');
         Route::get('/delete/{bookId?}',[BookController::class,'delete'])->name('admin#bookDelete');
+        Route::get('/view/{bookId?}',[BookController::class,'bookView'])->name('admin#bookView');
+        Route::get('/edit/{bookId?}',[BookController::class, 'edit'])->name('admin#bookEdit');
     });
 });
 

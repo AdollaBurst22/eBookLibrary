@@ -96,6 +96,34 @@ class BookController extends Controller
 
     }
 
+    //Redirect to book View Page
+    public function bookView($bookId){
+        $book = Book::leftJoin('categories','books.category_id','=','categories.id')
+                ->select(
+                    'books.*',
+                    'categories.name as category_name'
+                )
+                ->where('books.id',$bookId)
+                ->first();
+
+        return view('admin.book.viewBook',compact('book'));
+    }
+
+    //Redirect to book editing page
+    public function edit($bookId){
+        $book = Book::leftJoin('categories','books.category_id','=','categories.id')
+                ->select(
+                    'books.*',
+                    'categories.name as category_name'
+                )
+                ->where('books.id',$bookId)
+                ->first();
+
+        $categories = Category::select('id','name')->get();
+
+        return view('admin.book.editBook',compact('book','categories'));
+    }
+
     //Validate the uploaded Book
     private function validation($request){
         $request->validate([
