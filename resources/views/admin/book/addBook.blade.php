@@ -7,7 +7,8 @@
                 <h4><i class="fas fa-book me-2"></i> Add New Book</h4>
             </div>
             <div class="card-body p-4">
-                <form action="{{ route('admin#bookUpload') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin#bookUpload', ['action' => 'upload']) }}" method="POST"
+                    enctype="multipart/form-data">
                     @csrf
 
                     <div class="row g-3">

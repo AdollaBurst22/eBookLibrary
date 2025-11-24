@@ -31,11 +31,12 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     //Route groups for Books
     Route::prefix('book')->group(function(){
         Route::get('/add',[BookController::class,'add'])->name('admin#bookAdd');
-        Route::post('/upload',[BookController::class,'bookUpload'])->name('admin#bookUpload');
+        Route::post('/upload/{action?}',[BookController::class,'bookStore'])->name('admin#bookUpload');
         Route::get('/list/{action?}',[BookController::class,'list'])->name('admin#bookList');
         Route::get('/delete/{bookId?}',[BookController::class,'delete'])->name('admin#bookDelete');
         Route::get('/view/{bookId?}',[BookController::class,'bookView'])->name('admin#bookView');
         Route::get('/edit/{bookId?}',[BookController::class, 'edit'])->name('admin#bookEdit');
+        Route::post('/update/{action?}',[BookController::class, 'bookStore'])->name('admin#bookUpdate');
     });
 });
 

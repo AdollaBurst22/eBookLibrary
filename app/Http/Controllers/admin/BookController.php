@@ -18,9 +18,12 @@ class BookController extends Controller
     }
 
     //Save the uploaded Book
-    public function bookUpload(Request $request){
-        $this->validation($request);
+    public function bookStore(Request $request,$action){
 
+        //Validate the data in the request using the separated validationg function.
+        $this->validation($request, $action);
+
+        //Collect the data in the request to store in the database.
         $data = [
             'name' => $request->name,
             'published_year' => $request->publishedYear,
@@ -28,19 +31,40 @@ class BookController extends Controller
             'category_id' => $request->categoryId,
         ];
 
-        if ($request->hasFile('coverImg')) {
-            $coverImage = $request->file('coverImg');
-            $coverImageName = uniqid() . '_' . $coverImage->getClientOriginalName();
-            $coverImage->move(public_path('coverImages'), $coverImageName);
+        //Check if the update or upload book. And also check whether the user uploaded the cover and book file. Separeted the functions to save the files in the folder and call them when required.
+        if($action == 'update'){
+            $oldBook = Book::select('cover','file')->where('id',$request->bookId)->first();
+
+            if($request->hasFile('coverImg')){
+                $coverImageName = $this->saveCover($request);
+                remove_file(public_path('coverImages'), $oldBook->cover);
+                $data['cover'] = $coverImageName;
+
+            }else{
+                $coverImageName = $this->saveCover($request);
+                $data['cover'] = $coverImageName;
+
+            };
+
+            if($request->hasFile('file')){
+                $bookFileName = $this->saveFile($request);
+                remove_file(public_path('coverImages'),$oldBook->file);
+                $data['file'] = $bookFileName;
+
+            }else{
+                $bookFileName = $this->saveFile($request);
+                $data['file'] = $bookFileName;
+
+            }
+        }else{
+            $coverImageName = $this->saveCover($request);
             $data['cover'] = $coverImageName;
+
+            $bookFileName = $this->saveFile($request);
+            $data['file'] = $bookFileName;
+
         }
 
-        if ($request->hasFile('file')) {
-            $bookFile = $request->file('file');
-            $bookFileName = uniqid() . '_' . $bookFile->getClientOriginalName();
-            $bookFile->move(public_path('bookFiles'), $bookFileName);
-            $data['file'] = $bookFileName;
-        }
         if ($request->description) {
             $data['description'] = $request->description;
         }
@@ -48,6 +72,22 @@ class BookController extends Controller
 
         Alert::success('Book Uploaded', 'Book Uploaded successfully.');
         return back();
+    }
+
+    //Separated function to save the book cover in the public folder.
+    private function saveCover($request){
+        $coverImage = $request->file('coverImg');
+        $coverImageName = uniqid() . '_' . $coverImage->getClientOriginalName();
+        $coverImage->move(public_path('coverImages'), $coverImageName);
+        return $coverImageName;
+    }
+
+    //Separated function to save the book file in the public folder.
+    private function saveFile($request){
+        $bookFile = $request->file('file');
+        $bookFileName = uniqid() . '_' . $bookFile->getClientOriginalName();
+        $bookFile->move(public_path('bookFiles'), $bookFileName);
+        return $bookFileName;
     }
 
     //Return to Book List Page
@@ -124,17 +164,25 @@ class BookController extends Controller
         return view('admin.book.editBook',compact('book','categories'));
     }
 
+    //Store the updated book data
+    public function update(Request $request){
+        dd($request);
+    }
+
     //Validate the uploaded Book
-    private function validation($request){
-        $request->validate([
+    private function validation($request, $action){
+
+        $rules = [
             'name' => 'required|string|max:255',
             'authorName' => 'required|string|max:255',
             'categoryId' => 'required|integer|exists:categories,id', //Must exists in categories table
             'publishedYear' => 'nullable|integer|min:1800|max:2100',
-            'file' => 'required|mimes:pdf|max:51200', // Max 50MB for PDF
+            // 'file' => 'required|mimes:pdf|max:51200', // Max 50MB for PDF
             'coverImg' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Max 2MB for image
             'description' => 'nullable|string',
-        ], [
+        ];
+
+        $messages = [
             'name.required' => 'The book name is required.',
             'name.max' => 'The book name may not be greater than 255 characters.',
 
@@ -155,7 +203,13 @@ class BookController extends Controller
             'coverImg.image' => 'The cover image must be an image file.',
             'coverImg.mimes' => 'The cover image must be a JPEG, PNG, JPG, or GIF.',
             'coverImg.max' => 'The cover image size must not exceed 2MB.',
-        ]);
+        ];
+
+        if($action == 'upload'){
+            $rules['file'] = 'required|mimes:pdf|max:51200';
+        };
+
+        $request->validate($rules, $messages);
     }
 
 }
